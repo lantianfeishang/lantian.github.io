@@ -13,9 +13,9 @@ password:为学习通密码
 
 至此，可使用
 """
-url = ''
-number=""
-password=""
+url = 'https://mooc1.chaoxing.com/mycourse/studentstudy?chapterId=906471136&courseId=246167166&clazzid=105956415&cpi=353007561&enc=d74465392df862b8366bfcb913e7f433&mooc2=1&openc=2eea01aabc52c4de414bfc9672588e7a'
+number="13536376323"
+password="ltz673718601"
 
 os.system('cls')
 browser = webdriver.Firefox()
@@ -28,31 +28,47 @@ def login(number,password):
 #开始视频
 def videoOpen():
    time.sleep(1)
-   frame1 = browser.find_element(By.XPATH,'//*[@id="iframe"]')
-   browser.switch_to.frame(frame1)
-   frame2 = browser.find_element(By.XPATH,'/html/body/div[2]/div/p/div/iframe')
-   browser.switch_to.frame(frame2)
-   browser.find_element(By.XPATH,'/html/body/div[2]/div[1]/div[3]/div[2]/div/button').click()
-   browser.switch_to.default_content()
-   browser.switch_to.default_content()
+   try:
+      browser.switch_to.frame('iframe')
+      frame2 = browser.find_element(By.XPATH,'/html/body/div[2]/div/p/div/iframe')
+      browser.switch_to.frame(frame2)
+      browser.find_element(By.XPATH,'/html/body/div[2]/div[1]/div[3]/div[2]/div/button').click()
+      print("尝试开始视频")
+   except:
+      print("视频开启失败")
+      return 0
+   else:
+      print("视频开启成功")
+      return 1
+   finally:
+      browser.switch_to.default_content()
+      browser.switch_to.default_content()
 #视频结束
 def videoOver():
-   time.sleep(1)
-   browser.find_element(By.ID,'prevNextFocusNext').click()
-   time.sleep(1)
-   browser.find_element(By.ID,'prevNextFocusNext').click()
+   try:
+      time.sleep(1)
+      browser.find_element(By.ID,'prevNextFocusNext').click()
+      time.sleep(1)
+      browser.find_element(By.ID,'prevNextFocusNext').click()
+      print("跳过视频")
+   except:
+      pass
+   finally:
+      return 0
 #已经看过
 def videoHadOver():
    time.sleep(1)
-   frame1 = browser.find_element(By.XPATH,'//*[@id="iframe"]')
-   browser.switch_to.frame(frame1)
-   s = browser.find_element(By.XPATH,'/html/body/div[2]/div/p/div/div[1]').get_attribute("aria-label")
-   p = '.+\S?'
-   word = re.findall(p, s, re.S)[0]
-   browser.switch_to.default_content()
-   if word == "任务点已完成":
-      return True
-   else:False
+   try:
+      browser.switch_to.frame('iframe')
+      s = browser.find_element(By.XPATH,'/html/body/div[2]/div/p/div/div[1]').get_attribute("aria-label")
+      p = '.+\S?'
+      word = re.findall(p, s, re.S)[0]
+      browser.switch_to.default_content()
+      if word == "任务点已完成":
+         print("视频已经看过")
+         return True
+      else:return False
+   except:pass
 #问题弹窗
 def is_exist():
    while True:
@@ -64,7 +80,7 @@ def is_exist():
          browser.find_element(By.LINK_TEXT,'关闭').click()#关闭答题窗口
          browser.switch_to.default_content()
       except:
-         browser.switch_to.parent_frame()#没有弹出，切换回本来的frame
+         browser.switch_to.default_content()
       time.sleep(5)
 #视频主程序
 def watch():
@@ -72,12 +88,9 @@ def watch():
    while True:
       time.sleep(2)#2秒检测一次
       if videoHadOver():
-         videoOver()
-         a=0
+         a = videoOver()
       if a == 0:
-         videoOpen()
-         time.sleep(1)
-         a=1
+         a = videoOpen()
 
 login(number,password)
 watch()
